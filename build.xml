@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2015 AsiaSoft. All rights reserved. Creation date: 2015-11-09 
+	Author: Sailer Wen -->
+<project name="bookShareServer" default="all" xmlns:artifact="ant">
+	<property file="build.properties" />
+
+	<!--系统环境变量 -->
+	<property environment="env" />
+	<property name="company.name" value="${company.name}" />
+	<property name="jdk.home" value="${env.JAVA_HOME}" />
+	<!-- <property name="tomcat.home" value="E:/apache-tomcat-8.0.30" /> -->
+	<property name="tomcat.home" value="${env.TOMCAT_HOME}" />
+
+	<!--后台Java代码编译打包路径 -->
+	<property name="build.home" value="${build.home}" />
+	<property name="build.classes.dir" value="${build.home}/classes" />
+	<property name="build.lib.dir" value="${build.home}/lib" />
+
+	<property name="compile.debug" value="true" />
+	<property name="compile.deprecation" value="true" />
+	<property name="compile.optimize" value="true" />
+	<property name="compile.encoding" value="UTF-8" />
+
+	<!--项目src路径 -->
+	<property name="src.dir" value="${src.dir}" />
+	<property name="package.dir" value="${package.dir}" />
+	<!--lib路径 -->
+	<property name="lib.home" value="${lib.dir}" />
+	<!--系统配置文件res路径 -->
+	<property name="res.home" value="${resources.dir}" />
+	<!--前后台打包路径 -->
+	<property name="dist.home" value="${dist.dir}" />
+	<property name="web.home" value="${web.dir}" />
+
+	<property name="webapp.name" value="${webapp.name}" />
+
+	<!--数据库初始化 -->
+	<property name="res.make.dir" value="${basedir}/res-hibernate" />
+	<property name="res.sql.dir" value="${basedir}/res-hibernate/sql" />
+
+	<property name="build.sql.dir" value="${build.home}/sql" />
+	<property name="build.docs.dir" value="${build.home}/docs" />
+
+	<!-- ===================== Compilation Classpath =========================== -->
+	<path id="classpath">
+		<pathelement location="${jdk.home}/lib/dt.jar" />
+		<pathelement location="${jdk.home}/lib/tools.jar" />
+		<fileset dir="${tomcat.home}">
+			<include name="lib/**/*.jar" />
+		</fileset>
+		<fileset dir="${lib.home}/runtime">
+			<include name="**/*.jar" />
+		</fileset>
+		<pathelement location="${build.classes.dir}" />
+		<pathelement location="${res.home}" />
+	</path>
+
+	<path id="hibernate-build-path">
+		<pathelement location="${jdk.home}/lib/dt.jar" />
+		<pathelement location="${jdk.home}/lib/tools.jar" />
+
+		<fileset dir="${lib.home}/devtime">
+			<include name="hibernate4/*.jar" />
+			<include name="hibernate-tools/*.jar" />
+		</fileset>
+
+		<fileset dir="${lib.home}/runtime">
+			<include name="mysql/*.jar" />
+			<include name="commons/*.jar" />
+		</fileset>
+		<pathelement location="${build.classes.dir}" />
+	</path>
+
+	<!-- ===================== Build Targets below here =========================== -->
+	<target name="check-jdk" unless="jdk.present">
+		<fail>
+			Property "jdk.home" is set, but it does not seem
+			to point to the right directory.
+		</fail>
+	</target>
+
+	<target name="check-environment" description="check environment">
+		<available property="jdk.present" file="${jdk.home}/lib/dt.jar" />
+		<antcall target="check-jdk" />
+	</target>
+
+	<target name="init" depends="check-environment" description="initialize">
+		<!-- Create the time stamp -->
+		<tstamp />
+	</target>
+
+	<target name="clean" description="clean up">
+		<delete dir="${build.home}" />
+		<delete dir="${dist.home}" />
+	</target>
+
+	<target name="prepare" depends="clean"
+		description="preparation steps can be placed here">
+	</target>
+
+	<!--1.编译后台代码到build/classes -->
+	<target name="compile" depends="prepare" description="compile the source">
+		<mkdir dir="${build.home}" />
+		<mkdir dir="${build.classes.dir}" />
+		<javac srcdir="${src.dir}" destdir="${build.classes.dir}" debug="${compile.debug}"
+			deprecation="${compile.deprecation}" optimize="${compile.optimize}"
+			includes="**/*.java" encoding="${compile.encoding}">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+	<!--2.把编译后台代码打包为jar（build/lib） -->
+	<target name="build" depends="compile">
+		<mkdir dir="${build.lib.dir}" />
+
+		<jar destfile="${build.lib.dir}/${webapp.name}-core.jar">
+			<fileset dir="${build.classes.dir}">
+				<include name="com/book_share/core/**" />
+			</fileset>
+		</jar>
+
+		<!--%%%%%%%%%%%%%%%%%改这里%%%%%%%%%%%%%%%%%% -->
+				<!--%%%%%%%%%%%%%%%自己模块自己维护%%%%%%%%%%%%%%% -->
+		<jar destfile="${build.lib.dir}/${webapp.name}-book-management.jar">
+			<fileset dir="${build.classes.dir}">
+				<include name="com/book_share/book_management/**" />
+			</fileset>
+		</jar>
+
+	</target>
+
+	<!--3.构建Java Web项目 -->
+	<target name="dist" depends="build" description="generate the distribution">
+		<mkdir dir="${dist.home}/${webapp.name}" />
+		<mkdir dir="${dist.home}/${webapp.name}/WEB-INF" />
+		<mkdir dir="${dist.home}/${webapp.name}/WEB-INF/lib" />
+		<mkdir dir="${dist.home}/${webapp.name}/WEB-INF/classes" />
+
+		<!--3.1 copy web文件夹下所有的文件到 dist/book_share -->
+		<copy todir="${dist.home}/${webapp.name}">
+			<fileset dir="${web.home}">
+				<include name="**/**" />
+			</fileset>
+		</copy>
+		<!--3.2 copy res配置文件夹下所有的文件到 dist/book_share/WEB-INF/classes -->
+		<copy todir="${dist.home}/${webapp.name}/WEB-INF/classes">
+			<fileset dir="${res.home}">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+
+		<!--3.3 copy 所有的jar包（包括后台Jar和运行时Jar） 到 dist/book_share/WEB-INF/lib -->
+		<copy todir="${dist.home}/${webapp.name}/WEB-INF/lib">
+			<!--3.3.1 copy 所有后台的jar包 -->
+			<fileset dir="${build.lib.dir}">
+				<include name="bookShareServer-core.jar" />
+
+				<!--%%%%%%%%%%%%%%%%%改这里%%%%%%%%%%%%%%%%%% -->
+				<!--%%%%%%%%%%%%%%%自己模块自己维护%%%%%%%%%%%%%%% -->
+				<!--%%%%%%%%%%%%%%%bookShareServer是打包名，需要跟随更改%%%%%%%%%%%%%%% -->
+				<include name="bookShareServer-book-management.jar" />
+
+			</fileset>
+			<!--3.3.1 copy 所有runtime的jar包 -->
+			<fileset dir="${lib.home}/runtime/cglib">
+				<include name="*.jar" />
+			</fileset>
+
+			<fileset dir="${lib.home}/runtime/commons">
+				<include name="*.jar" />
+			</fileset>
+
+			<fileset dir="${lib.home}/runtime/datasource/c3p0">
+				<include name="*.jar" />
+			</fileset>
+
+			<fileset dir="${lib.home}/runtime/hibernate">
+				<include name="*.jar" />
+			</fileset>
+
+			<fileset dir="${lib.home}/runtime/mysql">
+				<include name="*.jar" />
+			</fileset>
+
+			<fileset dir="${lib.home}/runtime/spring">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.home}/runtime/spring-aop">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.home}/runtime/spring-orm">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib.home}/runtime/spring-web">
+				<include name="*.jar" />
+			</fileset>
+
+			<fileset dir="${lib.home}/runtime/struts2">
+				<include name="*.jar" />
+			</fileset>
+
+			<!--自己维护发布第三方jar -->
+			
+		</copy>
+
+		<!-- Create the <war> file -->
+		<jar jarfile="${dist.home}/${webapp.name}.war" basedir="${dist.home}/${webapp.name}" />
+	</target>
+
+	<!--4.先清除tomcat中旧的项目，再发布新Java Web项目 -->
+	<target name="undeploy">
+		<delete file="${tomcat.home}/webapps/${webapp.name}.war"
+			failonerror="false" />
+		<delete dir="${tomcat.home}/webapps/${webapp.name}"
+			failonerror="false" />
+	</target>
+
+	<target name="deploy-war" depends="dist, undeploy">
+		<copy file="${dist.home}/${webapp.name}.war" todir="${tomcat.home}/webapps" />
+	</target>
+
+	<target name="deploy-dir" depends="dist, undeploy">
+		<mkdir dir="${tomcat.home}/webapps/${webapp.name}" />
+		<copy todir="${tomcat.home}/webapps/${webapp.name}">
+			<fileset dir="${dist.home}/${webapp.name}" />
+		</copy>
+	</target>
+
+	<target name="javadoc" description="Create Javadoc API documentation">
+		<mkdir dir="${build.docs.dir}/api" />
+		<javadoc packagenames="com.book_share.*" sourcepath="${src.java.dir}"
+			destdir="${build.docs.dir}/api" author="true" version="true" use="true"
+			Verbose="false" windowtitle="${project.name} Component API"
+			stylesheetfile="${docs.style.dir}/stylesheet.css" doctitle="${project.name} Component"
+			bottom="Copyright &#169; 2015 AsiaSoft Institute Limited. All Rights Reserved.">
+			<classpath refid="classpath" />
+			<fileset dir="src" defaultexcludes="yes">
+				<include name="${package.dir}/**" />
+			</fileset>
+		</javadoc>
+	</target>
+
+
+	<!--5.使用HibernateTools+Ant全自动生成数据库 -->
+	<target name="export-dbschema" depends="compile">
+		<echo
+			message="Generating the appropriate SQL DDL... Store the result in a file or export it directly to the database." />
+		<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask">
+			<classpath refid="hibernate-build-path" />
+		</taskdef>
+		<taskdef name="annotationconfiguration"
+			classname="org.hibernate.tool.ant.AnnotationConfigurationTask">
+			<classpath refid="hibernate-build-path" />
+		</taskdef>
+		<delete dir="${build.sql.dir}" />
+		<delete dir="${build.docs.dir}/dbschema" />
+		<mkdir dir="${build.sql.dir}" />
+		<mkdir dir="${build.docs.dir}/dbschema" />
+		<hibernatetool destdir="${build.sql.dir}">
+			<classpath refid="hibernate-build-path" />
+			<annotationconfiguration configurationfile="${res.make.dir}/hibernate.cfg.xml" />
+			<hbm2ddl export="true" update="false" drop="true" create="true"
+				delimiter=";" outputfilename="db_table_schema.sql" format="true"
+				haltonerror="false">
+			</hbm2ddl>
+			<hbm2doc destdir="${build.docs.dir}/dbschema" />
+		</hibernatetool>
+	</target>
+
+    <!--%%%%%%%%%%%%%%%%%改这里%%%%%%%%%%%%%%%%%% -->
+    <!-- For MySQL -->
+	<target name="initialize-database" depends="export-dbschema">
+		<echo message="Initializing database... If error occurs,let it be." />
+		<sql driver="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost:3306/bookShareDB"
+			userid="root" password="root" src="${res.sql.dir}/db_table_init.sql"
+			encoding="UTF-8" onerror="continue">
+			<classpath refid="hibernate-build-path" />
+		</sql>
+	</target>
+
+	<target name="startbanner">
+		<echo>${company.name}</echo>
+		<echo> Building ${webapp.name} Starting...    </echo>
+		<echo>+-------------------------------------------+</echo>
+	</target>
+
+	<target name="endbanner">
+		<echo>+-------------------------------------------+</echo>
+		<echo> Finished ${webapp.name} Successful!!!  </echo>
+		<echo>${company.name}</echo>
+	</target>
+	<!-- <target name="all" depends="startbanner, deploy-dir, initialize-database,endbanner" 
+		description="execute the all targets"/> -->
+	<target name="all" depends="startbanner,init , deploy-dir,endbanner"
+		description="execute the all targets" />
+
+</project>

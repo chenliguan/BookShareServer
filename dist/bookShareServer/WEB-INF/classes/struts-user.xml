@@ -1,0 +1,60 @@
+<!DOCTYPE struts PUBLIC
+"-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+"http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	 <package name="user" extends="json-default">
+
+	     <action name="registerAction" method="register"
+			class="com.book_share.book_management.action.UserAction">
+			<result type="json">
+				<param name="root">action</param>
+				<param name="excludeProperties">model,user,queryDTO</param>
+			</result>
+		</action>
+		
+	     <action name="loginAction" method="login"
+			class="com.book_share.book_management.action.UserAction">
+			<result type="json">
+				<param name="root">action</param>
+				<param name="excludeProperties">model,user,queryDTO</param>
+			</result>
+		</action>
+		
+		<action name="findUserAction" method="findUserBy"
+			class="com.book_share.book_management.action.UserAction">
+			<result type="json">
+				<param name="root">action</param>
+				<param name="excludeProperties">model,user,queryDTO</param>
+			</result>
+		</action>
+		
+		<!--  
+		<action name="findUserByIdAction" method="findUserById"
+			class="com.book_share.book_management.action.UserAction">
+			<result type="json">
+				<param name="root">action</param>
+				<param name="excludeProperties">model,user,queryDTO</param>
+			</result>
+		</action>
+-->
+<!-- 
+		<action name="createUserAction" method="createUser"
+			class="com.book_share.book_management.action.UserAction">
+			<result type="json">
+				<param name="root">action</param>
+				<param name="excludeProperties">model,totalCount,queryDTO,ecList</param>
+			</result>
+		</action>
+ -->
+ 
+		<action name="updateUserAction" method="updateUser"
+			class="com.book_share.book_management.action.UserAction">
+			<result type="json">
+				<param name="root">action</param>
+				<param name="excludeProperties">model,totalCount,queryDTO,ecList</param>
+			</result>
+		</action>
+		
+	</package>
+</struts>

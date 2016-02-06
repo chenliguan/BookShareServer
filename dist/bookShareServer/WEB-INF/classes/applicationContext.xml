@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xmlns:aop="http://www.springframework.org/schema/aop"
+xmlns:tx="http://www.springframework.org/schema/tx"
+xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<!-- 1.自动扫描组件：自动启动注解配置-->
+	<context:component-scan base-package="com.book_share"/>
+	
+	<!-- 2.启动AOP自动代理 -->
+	<aop:aspectj-autoproxy/>
+	
+	<!-- 3.加载公共的数据库配置文件 db.properties-->
+	<context:property-placeholder location="classpath:db.properties"/>  
+	
+	<!-- 4.Data Source -->
+	<bean id="myDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="${dataSource.driverClassName}"></property>
+        <property name="jdbcUrl" value="${dataSource.url}"></property>
+        <property name="user" value="${dataSource.username}"></property>
+        <property name="password" value="${dataSource.password}"></property>
+        <property name="maxPoolSize" value="40"></property>
+        <property name="minPoolSize" value="1"></property>
+        <property name="initialPoolSize" value="1"></property>
+        <property name="testConnectionOnCheckin" value="true"></property>
+        <property name="automaticTestTable" value="C3P0TestTable"></property>
+        <property name="idleConnectionTestPeriod" value="18000"></property>
+        <property name="maxIdleTime" value="25000"></property>
+	</bean>
+	
+	<!-- 5.Hibernate SessionFactory -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<!-- Data Source  -->
+		<property name="dataSource" ref="myDataSource"/>
+		<!-- hibernate 配置属性  -->
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.connection.pool_size">${hibernate.connection.pool_size}</prop>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<!--<prop key="hibernate.temp.use_jdbc_metadata_defaults">false</prop>-->
+				<!-- Spring事务管理sessionContext -->
+				<prop key="hibernate.current_session_context_class">${hibernate.current_session_context_class}</prop>
+				<prop key="hibernate.cache.provider_class">${hibernate.cache.provider_class}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+			</props>
+		</property>
+		<!-- 扫描映射Entity -->
+		 <property name="packagesToScan">
+            <list>
+                <value>com.book_share.*.entity</value>
+            </list>
+		</property>
+	</bean>
+	
+	<!-- 6.Spring orm 事务管理 支持-->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	<!-- 7.Spring 基于注解的 声明式事务管理-->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
+	
+</beans>

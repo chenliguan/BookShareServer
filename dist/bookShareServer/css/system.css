@@ -1,0 +1,73 @@
+﻿.app-header{
+	padding:17px;
+	background-image:url(header-bg.png) !important;
+	background-color:#363f49;
+	background-image:-webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #3d4752), color-stop(100%, #2d353d));
+	background-image:-moz-linear-gradient(top, #3d4752,#2d353d);
+	background-image:-o-linear-gradient(top, #3d4752,#2d353d);
+	background-image:linear-gradient(top, #3d4752,#2d353d);
+	color:#fff;
+	font-size:25px;
+	font-weight:bold;
+	text-align:left;
+	text-shadow:0 1px 0 #16191d;
+	border-bottom:1px solid #16191d !important
+}
+
+/**
+ * Icons
+ */
+.blist {
+    width: 16px;
+    height: 16px;
+    background-image: url(../resources/images/icons/fam/application_go.png) !important;
+}
+.add {
+    width: 16px;
+    height: 16px;
+    background-image: url(../resources/images/icons/fam/add.png) !important;
+}
+.edit {
+    width: 16px;
+    height: 16px;
+    background-image: url(../resources/images/icons/fam/cog_edit.png) !important;
+}
+
+.delete {
+    width: 16px;
+    height: 16px;
+    background-image: url(../resources/images/icons/fam/delete.png) !important;
+}
+.find {
+    width: 16px;
+    height: 16px;
+    background-image: url(../resources/images/grid/filters/find.png) !important;
+}
+
+.application_view_list {
+    width: 16px;
+    height: 16px;
+    background-image: url(../resources/images/icons/fam/application_view_list.png) !important;
+}
+
+
+/**
+ * SelectPanel
+ */
+
+.feed-list {
+    padding: 0 3px 0 3px;
+}
+.feed-list-item {
+    margin-top: 3px;
+    padding-left: 20px;
+    font-size: 11px;
+    line-height: 20px;
+    cursor: pointer;
+    background: url(../resources/images/icons/fam/application_view_list.png) no-repeat 0 2px;
+    border: 1px solid #fff;
+}
+
+.feed-list-item-hover {
+    background-color: #eee;
+}

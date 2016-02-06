@@ -1,0 +1,91 @@
+/*
+ * @(#)ApplicationException.java
+ *
+ * Copyright (c) 2010 AsiaSoft Institute Limited. All Rights Reserved.
+ */
+
+
+package com.asiasoft.javaee.core.exception;
+
+
+/**
+ * Class description goes here.
+ *
+ * @version 1.00 2010-6-11
+ * @author <a href="mailto:alex.zhang@asiasoft.hk">Alex Zhang</a>
+ */
+
+@SuppressWarnings("serial")
+public class ApplicationException extends RuntimeException
+{   
+    private String message;
+    private String messageDetails;
+
+
+    /**
+     * Default constructor. Takes no arguments.
+     */
+    public ApplicationException()
+    {
+        super();
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param message
+     */
+    public ApplicationException(String message)
+    {
+        super(message);
+        
+        this.message = message;
+    }
+
+    /**
+     * Constructor
+     * 
+     * @param message
+     * @param messageDetails
+     */
+    public ApplicationException(String message, String messageDetails)
+    {
+        super(message);
+        
+        this.message = message;
+        this.messageDetails = messageDetails;
+    }
+
+
+    /**
+     * @return the message
+     */
+    public String getMessage()
+    {
+        return message;
+    }
+
+    /**
+     * @return the messageDetails
+     */
+    public String getMessageDetails()
+    {
+        return messageDetails;
+    }
+
+    /**
+     * @param message the message to set
+     */
+    public void setMessage(String message)
+    {
+        this.message = message;
+    }
+
+    /**
+     * @param messageDetails the messageDetails to set
+     */
+    public void setMessageDetails(String messageDetails)
+    {
+        this.messageDetails = messageDetails;
+    }
+}

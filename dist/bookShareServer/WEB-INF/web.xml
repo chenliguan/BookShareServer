@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  
+  <display-name>ecrm</display-name>
+ 
+   <session-config>
+   		<session-timeout>25</session-timeout>
+   </session-config>
+   <context-param>
+	    <param-name>contextConfigLocation</param-name>
+	    <param-value>classpath:applicationContext.xml</param-value>
+   </context-param>
+   <!-- Struts2 环境启动 拦截器 -->
+   <filter>
+       <filter-name>struts-prepare</filter-name>
+       <filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareFilter</filter-class>
+   </filter>
+   
+   <!-- 自定义拦截器 ：其他处理:数据的校验,替换,造型,过滤-->
+   <listener>
+    	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+   </listener>
+   <!-- Struts2 执行 拦截器 -->
+   <filter>
+       <filter-name>struts-execute</filter-name>
+       <filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsExecuteFilter</filter-class>
+   </filter>
+   <!-- Spring启动  :加载 applicationContext*.xml-->
+
+   
+
+   
+   <filter-mapping>
+       <filter-name>struts-prepare</filter-name>
+       <url-pattern>/*</url-pattern>
+   </filter-mapping>
+   <filter-mapping>
+       <filter-name>struts-execute</filter-name>
+       <url-pattern>/*</url-pattern>
+   </filter-mapping>
+
+   <welcome-file-list>
+    <welcome-file>home.jsp</welcome-file>
+   </welcome-file-list>
+
+</web-app>
